@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.messaging.Message;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,6 +54,27 @@ public class kafkaController {
         ListenableFuture<SendResult<String, String>> producerRecord = null;
         try {
             producerRecord = kafkaTemplate.send(TOPIC2, mapper.writeValueAsString(car));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(producerRecord.get().getProducerRecord().toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return "Message Send";
+    }
+
+    @PostMapping(path = "post/users")
+    public String sendUsers(@RequestBody User user) {
+        ListenableFuture<SendResult<String, String>> producerRecord = null;
+        try {
+            producerRecord = kafkaTemplate.send("test3", mapper.writeValueAsString(user));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         } catch (Exception e)
