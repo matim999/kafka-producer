@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,20 +74,16 @@ public class kafkaController {
 
     @PostMapping(path = "post/users")
     public String sendUsers(@RequestBody User user) {
+        String topic = "test3";
         ListenableFuture<SendResult<String, String>> producerRecord = null;
         try {
-            producerRecord = kafkaTemplate.send("test3", mapper.writeValueAsString(user));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            Message<String> message = MessageBuilder
+                    .withPayload(mapper.writeValueAsString(user))
+                    .setHeader(KafkaHeaders.TOPIC, topic)
+                    .build();
+            kafkaTemplate.send(message);
         } catch (Exception e)
         {
-            e.printStackTrace();
-        }
-        try {
-            System.out.println(producerRecord.get().getProducerRecord().toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return "Message Send";
